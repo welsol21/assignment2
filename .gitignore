@@ -1,0 +1,32 @@
+# General settings
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Virtual environment
+venv/
+ENV/
+.env/
+*.env
+
+# System files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Compiled protocol files
+*.pb2.py
+*.pb2_grpc.py
+
+# Docker
+*.pid
+*.tar
+
+# Logs
+logs/
+*.log
+
+# Misc
+*.swp
