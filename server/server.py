@@ -1,7 +1,7 @@
 import grpc
 from concurrent import futures
-import employee_pb2_grpc
-import employee_pb2
+from generated import employee_pb2
+from generated import employee_pb2_grpc
 
 employees = {
     "E00123": {
