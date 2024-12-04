@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+service EmployeeService {
+  rpc GetEmployeeDetails (EmployeeRequest) returns (EmployeeResponse);
+}
+
+message EmployeeRequest {
+  string employee_id = 1;
+  string query_type = 2; // "S" (Salary) or "L" (Leave)
+  string sub_query = 3;  // For "S": "C" (Current), "T" (Total). For "L": "C" (Entitlement), "Y" (Year)
+  int32 year = 4; // Optional, for queries requiring year
+}
+
+message EmployeeResponse {
+  string message = 1;
+}
