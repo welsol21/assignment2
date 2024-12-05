@@ -1,3 +1,4 @@
+# server/server.py
 import grpc
 from concurrent import futures
 import logging
@@ -7,14 +8,17 @@ import employee_pb2
 import employee_pb2_grpc
 
 # Setting up logs
-log_dir = os.path.join(os.path.dirname(__file__), "logs")
+log_dir = os.getenv("LOG_DIR", "logs")
 os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, "server.log")
 
 logging.basicConfig(
-    filename=log_file,
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ],
 )
 
 # Employees data
@@ -35,19 +39,6 @@ def publish_message(message):
         connection.close()
     except Exception as e:
         logging.error(f"Failed to publish message to RabbitMQ: {e}")
-
-    # try:
-    #     credentials = pika.PlainCredentials(username='guest', password='guest')
-    #     connection = pika.BlockingConnection(
-    #         pika.ConnectionParameters(host='rabbitmq', credentials=credentials)
-    #     )
-    #     channel = connection.channel()
-    #     channel.exchange_declare(exchange='logs', exchange_type='fanout')  # Declare exchange
-    #     channel.basic_publish(exchange='logs', routing_key='', body=message)
-    #     logging.info(f"Message published to RabbitMQ: {message}")
-    #     connection.close()
-    # except Exception as e:
-    #     logging.error(f"Failed to publish message to RabbitMQ: {e}")
 
 
 # gRPC service implementation

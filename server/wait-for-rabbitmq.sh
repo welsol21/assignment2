@@ -1,4 +1,5 @@
 #!/bin/sh
+# server/wait-for-rabbitmq.sh
 
 RABBIT_HOST=$1
 RABBIT_PORT=$2

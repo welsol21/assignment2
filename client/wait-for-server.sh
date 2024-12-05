@@ -1,4 +1,5 @@
 #!/bin/bash
+# client/wait-for-server.sh
 
 host="$1"
 port="$2"

@@ -1,4 +1,5 @@
 #!/bin/sh
+# rabbit_consumer/wait-for-rabbitmq-for-consumer.sh
 
 RABBIT_HOST=$1
 RABBIT_PORT=$2

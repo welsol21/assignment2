@@ -1,18 +1,24 @@
+# rabbit_consumer/consumer.py
 import pika
 import os
 import time
 import logging
 
-# Настройка логирования
+log_dir = os.getenv("LOG_DIR", "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "consumer.log")
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]  # Лог в консоль (stdout)
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ],
 )
 
 
 def callback(ch, method, properties, body):
-    # Логирование сообщения с метаданными
     logging.info(f"""
     Received Message:
     -----------------
@@ -44,8 +50,7 @@ def main():
     connection = connect_to_rabbitmq()
     channel = connection.channel()
 
-    # Убедитесь, что очередь `logs` существует
-    channel.queue_declare(queue='logs')  # Работает с прямой очередью
+    channel.queue_declare(queue='logs')
 
     logging.info('Waiting for messages in queue "logs". To exit press CTRL+C')
     try:

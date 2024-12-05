@@ -1,3 +1,4 @@
+# client/client.py
 import grpc
 import logging
 import os
@@ -6,15 +7,19 @@ from io import StringIO
 import employee_pb2
 import employee_pb2_grpc
 
-# Настройка логирования
-log_file = os.path.join(os.path.dirname(__file__), "client.log")
+log_dir = os.getenv("LOG_DIR", "logs")
+os.makedirs(log_dir, exist_ok=True)
+log_file = os.path.join(log_dir, "client.log")
+
 logging.basicConfig(
-    filename=log_file,
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ],
 )
 
-# Эмуляция входных данных клиента
 script = """\
 E00123
 S
@@ -37,13 +42,12 @@ C
 X
 """
 
-# Перенаправление стандартного ввода для автоматизации
 sys.stdin = StringIO(script)
 
 
 def main():
     print("HR System 1.0")
-    channel = grpc.insecure_channel('grpc_server:50051')  # Подключение к gRPC серверу
+    channel = grpc.insecure_channel('grpc_server:50051')
     stub = employee_pb2_grpc.EmployeeServiceStub(channel)
 
     while True:
@@ -52,7 +56,6 @@ def main():
             print("Exiting HR System. Goodbye!")
             break
 
-        # Отправляем запрос на сервер
         request = employee_pb2.EmployeeRequest(employee_id=emp_id)
         try:
             response = stub.GetEmployeeDetails(request)
