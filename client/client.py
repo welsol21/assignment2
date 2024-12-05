@@ -4,13 +4,14 @@ import os
 import employee_pb2
 import employee_pb2_grpc
 
-# Настройка логов
+
 log_file = os.path.join(os.path.dirname(__file__), "logs/client.log")
 logging.basicConfig(
     filename=log_file,
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
+
 
 def main():
     print("HR System 1.0")
@@ -55,7 +56,6 @@ def main():
             if sub_query == "Y":
                 year = int(input("What year? "))
 
-        # Отправляем запрос на сервер с дополнительными параметрами
         request = employee_pb2.EmployeeRequest(
             employee_id=emp_id,
             query_type=query_type,
@@ -69,7 +69,6 @@ def main():
             print("Connection error: Unable to process the request.")
             logging.error(f"gRPC Error: {e.code()} - {e.details()}")
 
-        # Вопрос о продолжении работы
         next_action = input("Would you like to continue (C) or exit (X)? ").strip().upper()
         if next_action == "X":
             print("Goodbye")
