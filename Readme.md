@@ -71,7 +71,6 @@ Assignment2/
 ├── client/ # Client application 
 │ ├── logs/ # Log directory for client logs 
 │ │ └── client.log # Log file for client operations 
-│ ├── pycache/ # Compiled Python files 
 │ ├── client.py # Client implementation 
 │ ├── Dockerfile # Dockerfile for the client 
 │ ├── requirements.txt # Python dependencies for the client 
@@ -79,7 +78,6 @@ Assignment2/
 ├── rabbit_consumer/ # RabbitMQ consumer application 
 │ ├── logs/ # Log directory for consumer logs 
 │ │ └── consumer.log # Log file for consumer operations 
-│ ├── pycache/ # Compiled Python files 
 │ ├── consumer.py # RabbitMQ consumer implementation 
 │ ├── Dockerfile # Dockerfile for the RabbitMQ consumer 
 │ ├── requirements.txt # Python dependencies for the RabbitMQ consumer 
@@ -89,7 +87,6 @@ Assignment2/
 ├── server/ # gRPC server application 
 │ ├── logs/ # Log directory for server logs 
 │ │ └── server.log # Log file for server operations 
-│ ├── pycache/ # Compiled Python files 
 │ ├── employee_pb2_grpc.py # Auto-generated gRPC classes 
 │ ├── employee_pb2.py # Auto-generated Protocol Buffer classes 
 │ ├── server.py # gRPC server implementation 
