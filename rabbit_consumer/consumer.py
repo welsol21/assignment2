@@ -1,10 +1,27 @@
 import pika
 import os
 import time
+import logging
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]  # Лог в консоль (stdout)
+)
 
 
 def callback(ch, method, properties, body):
-    print(f" [x] Received {body.decode()}")
+    # Логирование сообщения с метаданными
+    logging.info(f"""
+    Received Message:
+    -----------------
+    Exchange: {method.exchange or "(AMQP default)"}
+    Routing Key: {method.routing_key}
+    Redelivered: {method.redelivered}
+    Properties: {properties.headers if properties.headers else "(No properties)"}
+    Payload: {body.decode()}
+    """)
 
 
 def connect_to_rabbitmq():
@@ -18,28 +35,24 @@ def connect_to_rabbitmq():
             )
             return connection
         except pika.exceptions.AMQPConnectionError:
-            print(f"Connection attempt {attempt + 1} failed. Retrying in 5 seconds...")
+            logging.warning(f"Connection attempt {attempt + 1} failed. Retrying in 5 seconds...")
             time.sleep(5)
     raise Exception("Failed to connect to RabbitMQ after 10 attempts.")
+
 
 def main():
     connection = connect_to_rabbitmq()
     channel = connection.channel()
 
-    # Declare the exchange and queue
-    channel.exchange_declare(exchange='logs', exchange_type='fanout')
-    result = channel.queue_declare(queue='', exclusive=True)
-    queue_name = result.method.queue
+    # Убедитесь, что очередь `logs` существует
+    channel.queue_declare(queue='logs')  # Работает с прямой очередью
 
-    # Bind the queue to the exchange
-    channel.queue_bind(exchange='logs', queue=queue_name)
-
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    logging.info('Waiting for messages in queue "logs". To exit press CTRL+C')
     try:
-        channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+        channel.basic_consume(queue='logs', on_message_callback=callback, auto_ack=True)
         channel.start_consuming()
     except KeyboardInterrupt:
-        print("Exiting...")
+        logging.info("Consumer stopped by user.")
         channel.stop_consuming()
         connection.close()
 
