@@ -1,0 +1,59 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672" # RabbitMQ Management UI
+      - "5672:5672"   # RabbitMQ AMQP Port
+    networks:
+      - app_network
+
+  grpc_server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: grpc_server_image
+    container_name: grpc_server
+    depends_on:
+      - rabbitmq
+    networks:
+      - app_network
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    ports:
+      - "50051:50051" # Expose gRPC server port for the client
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: client_image
+    container_name: client
+    depends_on:
+      - grpc_server
+    networks:
+      - app_network
+    environment:
+      - GRPC_SERVER_HOST=grpc_server
+      - GRPC_SERVER_PORT=50051
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+
+  rabbit_consumer:
+    build:
+      context: ./rabbit_consumer
+      dockerfile: Dockerfile
+    image: rabbit_consumer_image
+    container_name: rabbit_consumer
+    depends_on:
+      - rabbitmq
+    networks:
+      - app_network
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+
+networks:
+  app_network:
+    driver: bridge

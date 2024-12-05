@@ -25,7 +25,7 @@ Thumbs.db
 *.tar
 
 # Logs
-logs/
+# logs/
 *.log
 
 # Misc

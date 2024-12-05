@@ -1,21 +1,49 @@
 import grpc
 import logging
 import os
+import sys
+from io import StringIO
 import employee_pb2
 import employee_pb2_grpc
 
-
-log_file = os.path.join(os.path.dirname(__file__), "logs/client.log")
+# Настройка логирования
+log_file = os.path.join(os.path.dirname(__file__), "client.log")
 logging.basicConfig(
     filename=log_file,
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
+# Эмуляция входных данных клиента
+script = """\
+E00123
+S
+C
+C
+W01033
+E01033
+S
+T
+2018
+C
+E00123
+L
+Y
+2016
+C
+E01033
+L
+C
+X
+"""
+
+# Перенаправление стандартного ввода для автоматизации
+sys.stdin = StringIO(script)
+
 
 def main():
     print("HR System 1.0")
-    channel = grpc.insecure_channel('localhost:50051')
+    channel = grpc.insecure_channel('grpc_server:50051')  # Подключение к gRPC серверу
     stub = employee_pb2_grpc.EmployeeServiceStub(channel)
 
     while True:
@@ -24,29 +52,23 @@ def main():
             print("Exiting HR System. Goodbye!")
             break
 
-        # Отправляем запрос на сервер с ID сотрудника
+        # Отправляем запрос на сервер
         request = employee_pb2.EmployeeRequest(employee_id=emp_id)
         try:
             response = stub.GetEmployeeDetails(request)
             print(response.message)
 
-            # Проверяем, был ли сотрудник найден
             if "Sorry... I don’t recognise that employee id" in response.message:
-                continue  # Запрашиваем новый ID
+                continue
         except grpc.RpcError as e:
             print("Connection error: Unable to reach the server.")
             logging.error(f"gRPC Error: {e.code()} - {e.details()}")
             break
 
-        # Вопросы о типе запроса
-        while True:
-            query_type = input("Salary (S) or Annual Leave (L) Query? ").strip().upper()
-            if query_type in ["S", "L"]:
-                break
-            print("Invalid input. Please enter 'S' or 'L'.")
-
+        query_type = input("Salary (S) or Annual Leave (L) Query? ").strip().upper()
         sub_query = ""
         year = 0
+
         if query_type == "S":
             sub_query = input("Current salary (C) or total salary (T) for year? ").strip().upper()
             if sub_query == "T":
@@ -60,8 +82,9 @@ def main():
             employee_id=emp_id,
             query_type=query_type,
             sub_query=sub_query,
-            year=year
+            year=year,
         )
+
         try:
             response = stub.GetEmployeeDetails(request)
             print(response.message)
@@ -73,6 +96,7 @@ def main():
         if next_action == "X":
             print("Goodbye")
             break
+
 
 if __name__ == "__main__":
     main()
