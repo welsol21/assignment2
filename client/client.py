@@ -46,19 +46,25 @@ sys.stdin = StringIO(script)
 
 
 def main():
+    logging.info("Client script started.")
     print("HR System 1.0")
+    logging.info("Connecting to gRPC server at grpc_server:50051")
     channel = grpc.insecure_channel('grpc_server:50051')
     stub = employee_pb2_grpc.EmployeeServiceStub(channel)
 
     while True:
         emp_id = input("What is the employee id? ").strip()
+        logging.info(f"User input for employee id: {emp_id}")
         if not emp_id:
             print("Exiting HR System. Goodbye!")
+            logging.info("Client script terminated.")
             break
 
         request = employee_pb2.EmployeeRequest(employee_id=emp_id)
         try:
+            logging.info(f"Sending request to server: {request}")
             response = stub.GetEmployeeDetails(request)
+            logging.info(f"Received response: {response.message}")
             print(response.message)
 
             if "Sorry... I don’t recognise that employee id" in response.message:
@@ -69,6 +75,7 @@ def main():
             break
 
         query_type = input("Salary (S) or Annual Leave (L) Query? ").strip().upper()
+
         sub_query = ""
         year = 0
 
@@ -89,15 +96,19 @@ def main():
         )
 
         try:
+            logging.info(f"Sending request to server: {request}")
             response = stub.GetEmployeeDetails(request)
+            logging.info(f"Received response: {response.message}")
             print(response.message)
         except grpc.RpcError as e:
             print("Connection error: Unable to process the request.")
             logging.error(f"gRPC Error: {e.code()} - {e.details()}")
 
         next_action = input("Would you like to continue (C) or exit (X)? ").strip().upper()
+        logging.info(f"User selected next action: {next_action}")
         if next_action == "X":
             print("Goodbye")
+            logging.info("Client script terminated.")
             break
 
 
