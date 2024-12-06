@@ -14,6 +14,8 @@ services:
       dockerfile: Dockerfile
     image: grpc_server_image
     container_name: grpc_server
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - rabbitmq
     networks:
@@ -30,6 +32,8 @@ services:
       dockerfile: Dockerfile
     image: client_image
     container_name: client
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - grpc_server
     networks:
@@ -46,6 +50,8 @@ services:
       dockerfile: Dockerfile
     image: rabbit_consumer_image
     container_name: rabbit_consumer
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - rabbitmq
     networks:
